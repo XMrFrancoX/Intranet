@@ -1,0 +1,292 @@
+/* ===================================
+   HORARIO.CSS — Visual Schedule Grid
+   =================================== */
+
+.schedule-wrapper {
+    overflow-x: auto;
+    overflow-y: visible;
+}
+
+.schedule-grid {
+    display: grid;
+    grid-template-columns: 56px repeat(5, 1fr);
+    min-width: 780px;
+    position: relative;
+    border-radius: 1rem;
+    overflow: hidden;
+}
+
+/* Header row */
+.schedule-header {
+    display: contents;
+}
+
+.schedule-day-header {
+    padding: 10px 6px;
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #1e293b;
+    background: #dbeafe;
+    border-right: 1px solid #bfdbfe;
+}
+
+.dark .schedule-day-header {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-right-color: #1e40af;
+}
+
+.schedule-day-header:first-child {
+    background: #f1f5f9;
+    border-right: 1px solid #e2e8f0;
+}
+
+/* Time column header */
+.time-header {
+    background: #f1f5f9;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dark .time-header {
+    background: #1e293b;
+    border-bottom-color: #374151;
+}
+
+/* Body rows */
+.schedule-body {
+    display: contents;
+}
+
+/* Time cell */
+.time-cell {
+    background: #f8fafc;
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #f1f5f9;
+    padding: 4px 6px 4px 2px;
+    text-align: right;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    position: relative;
+    min-height: 56px;
+    vertical-align: top;
+}
+
+.dark .time-cell {
+    background: #1e293b;
+    border-right-color: #374151;
+    border-bottom-color: #273548;
+    color: #64748b;
+}
+
+.time-label {
+    position: sticky;
+    top: 80px;
+}
+
+/* Day column cell */
+.day-cell {
+    border-right: 1px solid #e2e8f0;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+    background: #fff;
+    min-height: 56px;
+}
+
+.dark .day-cell {
+    background: #1e293b;
+    border-right-color: #374151;
+    border-bottom-color: #273548;
+}
+
+.day-cell:last-child {
+    border-right: none;
+}
+
+/* Subject block */
+.subject-block {
+    position: absolute;
+    left: 2px;
+    right: 2px;
+    border-radius: 8px;
+    padding: 5px 6px;
+    font-size: 0.67rem;
+    line-height: 1.3;
+    overflow: hidden;
+    cursor: default;
+    transition: box-shadow 0.15s, transform 0.15s;
+    z-index: 1;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.subject-block:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    z-index: 10;
+}
+
+.subject-block .sb-time {
+    font-size: 0.6rem;
+    font-weight: 700;
+    opacity: 0.7;
+    margin-bottom: 2px;
+}
+
+.subject-block .sb-name {
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: -0.01em;
+}
+
+.subject-block .sb-detail {
+    font-size: 0.6rem;
+    opacity: 0.75;
+    margin-top: 2px;
+}
+
+/* Color variants — blue (default) */
+.sb-blue {
+    background: #dbeafe;
+    border-left: 3px solid #3b82f6;
+    color: #1d4ed8;
+}
+.dark .sb-blue {
+    background: #1e3a5f;
+    border-left-color: #60a5fa;
+    color: #93c5fd;
+}
+
+/* Green */
+.sb-green {
+    background: #dcfce7;
+    border-left: 3px solid #22c55e;
+    color: #15803d;
+}
+.dark .sb-green {
+    background: #14532d;
+    border-left-color: #4ade80;
+    color: #86efac;
+}
+
+/* Purple */
+.sb-purple {
+    background: #ede9fe;
+    border-left: 3px solid #8b5cf6;
+    color: #6d28d9;
+}
+.dark .sb-purple {
+    background: #2e1065;
+    border-left-color: #a78bfa;
+    color: #c4b5fd;
+}
+
+/* Amber */
+.sb-amber {
+    background: #fef3c7;
+    border-left: 3px solid #f59e0b;
+    color: #92400e;
+}
+.dark .sb-amber {
+    background: #451a03;
+    border-left-color: #fbbf24;
+    color: #fde68a;
+}
+
+/* Cyan */
+.sb-cyan {
+    background: #cffafe;
+    border-left: 3px solid #06b6d4;
+    color: #155e75;
+}
+.dark .sb-cyan {
+    background: #083344;
+    border-left-color: #22d3ee;
+    color: #67e8f9;
+}
+
+/* Rose */
+.sb-rose {
+    background: #ffe4e6;
+    border-left: 3px solid #f43f5e;
+    color: #9f1239;
+}
+.dark .sb-rose {
+    background: #4c0519;
+    border-left-color: #fb7185;
+    color: #fda4af;
+}
+
+/* Indigo */
+.sb-indigo {
+    background: #e0e7ff;
+    border-left: 3px solid #6366f1;
+    color: #3730a3;
+}
+.dark .sb-indigo {
+    background: #1e1b4b;
+    border-left-color: #818cf8;
+    color: #a5b4fc;
+}
+
+/* Teal */
+.sb-teal {
+    background: #ccfbf1;
+    border-left: 3px solid #14b8a6;
+    color: #115e59;
+}
+.dark .sb-teal {
+    background: #042f2e;
+    border-left-color: #2dd4bf;
+    color: #5eead4;
+}
+
+/* Orange */
+.sb-orange {
+    background: #ffedd5;
+    border-left: 3px solid #f97316;
+    color: #9a3412;
+}
+.dark .sb-orange {
+    background: #431407;
+    border-left-color: #fb923c;
+    color: #fdba74;
+}
+
+/* Break/Recreo */
+.sb-break {
+    background: #f8fafc;
+    border-left: 3px solid #94a3b8;
+    color: #64748b;
+    font-style: italic;
+}
+.dark .sb-break {
+    background: #273548;
+    border-left-color: #64748b;
+    color: #94a3b8;
+}
+
+/* Legend */
+.schedule-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 16px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+}

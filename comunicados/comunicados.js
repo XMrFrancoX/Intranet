@@ -309,8 +309,7 @@ function initializeUI() {
         document.getElementById('comunicados-section').classList.add('hidden');
         document.getElementById('no-access-back').href = roleConfig.panelUrl;
         document.getElementById('user-name').textContent = '';
-        document.getElementById('nav-panel').href = roleConfig.panelUrl;
-        document.getElementById('nav-logout').href = roleConfig.loginUrl;
+        applyThemeColors();
         return;
     }
 
@@ -320,10 +319,6 @@ function initializeUI() {
 
     // Set user info
     document.getElementById('user-name').textContent = roleConfig.userName;
-
-    // Set navigation links
-    document.getElementById('nav-panel').href = roleConfig.panelUrl;
-    document.getElementById('nav-logout').href = roleConfig.loginUrl;
 
     // Show role badge for admin
     if (roleConfig.showBadge) {
@@ -377,22 +372,6 @@ function applyThemeColors() {
         main.classList.add(roleConfig.bgClass);
     }
 
-    // Sidebar border
-    const aside = document.querySelector('aside');
-    aside.className = aside.className.replace(/border-\w+-50/g, '');
-    if (roleConfig.borderColor) {
-        aside.classList.add(roleConfig.borderColor);
-    }
-
-    // Footer border
-    const footerDiv = aside.querySelector('.p-4.border-t');
-    if (footerDiv) {
-        footerDiv.className = footerDiv.className.replace(/border-\w+-50/g, '');
-        if (roleConfig.borderColor) {
-            footerDiv.classList.add(roleConfig.borderColor);
-        }
-    }
-
     // Header border and button
     const header = document.querySelector('header');
     header.className = header.className.replace(/border-\w+-50/g, '');
@@ -404,6 +383,11 @@ function applyThemeColors() {
     if (themeBtn && roleConfig.headerBg) {
         themeBtn.className = themeBtn.className.replace(/bg-\w+-50/g, '');
         themeBtn.classList.add(roleConfig.headerBg);
+    }
+
+    // Init shared sidebar — path prefix is '../' since comunicados/ is one level up
+    if (typeof initSidebar === 'function') {
+        initSidebar(currentRole, 'comunicados', '../');
     }
 }
 
@@ -595,13 +579,26 @@ function filterComunicados() {
 
 // ---- MODALS ----
 function openModal(id) {
-    document.getElementById(id).classList.add('active');
+    const el = document.getElementById(id);
+    el.classList.remove('closing');
+    el.classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
 function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+    const el = document.getElementById(id);
+    el.classList.remove('active');
     document.body.style.overflow = '';
+}
+
+function closeModalAnimated(id) {
+    const el = document.getElementById(id);
+    el.classList.add('closing');
+    setTimeout(() => {
+        el.classList.remove('active');
+        el.classList.remove('closing');
+        document.body.style.overflow = '';
+    }, 250);
 }
 
 // ---- DETAIL MODAL ----
@@ -612,7 +609,8 @@ function openDetailModal(id) {
     currentDetailId = id;
 
     document.getElementById('detail-title').textContent = c.titulo;
-    document.getElementById('detail-body').textContent = c.contenido;
+    // Render content as HTML (supports WYSIWYG)
+    document.getElementById('detail-body').innerHTML = c.contenido;
     document.getElementById('detail-date').textContent = formatDate(c.fecha);
 
     const badge = document.getElementById('detail-badge');
@@ -663,15 +661,15 @@ function openDetailModal(id) {
         if (isFirmado) {
             footerHtml += `<span class="btn-sign signed"><i data-lucide="check-circle" class="w-4 h-4"></i> Ya Firmado</span>`;
         } else {
-            footerHtml += `<button class="btn-sign" onclick="closeModal('modal-detail'); openSignModal(${c.id})"><i data-lucide="pen-tool" class="w-4 h-4"></i> Firmar</button>`;
+            footerHtml += `<button class="btn-sign" onclick="closeModalAnimated('modal-detail'); openSignModal(${c.id})"><i data-lucide="pen-tool" class="w-4 h-4"></i> Firmar</button>`;
         }
     }
 
     if (roleConfig.canDelete) {
-        footerHtml += `<button class="btn-danger" onclick="closeModal('modal-detail'); openDeleteModal(${c.id})"><i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar</button>`;
+        footerHtml += `<button class="btn-danger" onclick="closeModalAnimated('modal-detail'); openDeleteModal(${c.id})"><i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar</button>`;
     }
 
-    footerHtml += `<button class="btn-secondary" onclick="closeModal('modal-detail')">Cerrar</button>`;
+    footerHtml += `<button class="btn-secondary" onclick="closeModalAnimated('modal-detail')">Cerrar</button>`;
     footer.innerHTML = footerHtml;
 
     openModal('modal-detail');
@@ -685,14 +683,21 @@ function formatDate(dateStr) {
 }
 
 // ---- CREATE MODAL ----
+let quillEditor = null;
+
 function openCreateModal() {
     document.getElementById('create-title').value = '';
     document.getElementById('create-body').value = '';
     document.getElementById('create-dest').value = 'todos';
     document.getElementById('curso-selector-group').classList.add('hidden');
+    document.getElementById('grupo-selector-group').classList.add('hidden');
     selectedFiles = [];
     document.getElementById('file-list').innerHTML = '';
     document.getElementById('file-input').value = '';
+
+    // Set today as default date
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('create-fecha').value = today;
 
     // Uncheck all checkboxes
     document.querySelectorAll('#curso-checkboxes input[type="checkbox"]').forEach(cb => {
@@ -700,24 +705,61 @@ function openCreateModal() {
         cb.closest('.curso-checkbox').classList.remove('selected');
     });
 
+    // Init or reset Quill
+    if (!quillEditor) {
+        quillEditor = new Quill('#quill-editor', {
+            theme: 'snow',
+            placeholder: 'Escribí el contenido del comunicado...',
+            modules: {
+                toolbar: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['link'],
+                    ['clean']
+                ]
+            }
+        });
+    } else {
+        quillEditor.setText('');
+    }
+
+    // Refresh groups
+    populateGrupoCheckboxes();
+
     openModal('modal-create');
 }
 
-function toggleCursoSelector() {
+function toggleDestinatarioSelector() {
     const dest = document.getElementById('create-dest').value;
-    const group = document.getElementById('curso-selector-group');
-    if (dest === 'cursos') {
-        group.classList.remove('hidden');
-    } else {
-        group.classList.add('hidden');
-    }
+    document.getElementById('curso-selector-group').classList.toggle('hidden', dest !== 'cursos');
+    document.getElementById('grupo-selector-group').classList.toggle('hidden', dest !== 'grupos');
+    if (typeof lucide !== 'undefined') lucide.createIcons();
 }
+
+// Keep old name as alias for compatibility
+function toggleCursoSelector() { toggleDestinatarioSelector(); }
 
 function populateCursoCheckboxes() {
     const container = document.getElementById('curso-checkboxes');
     container.innerHTML = CURSOS.map(curso => `
         <label class="curso-checkbox" onclick="this.classList.toggle('selected')">
             <input type="checkbox" value="${curso}"> ${curso}
+        </label>
+    `).join('');
+}
+
+function populateGrupoCheckboxes() {
+    const grupos = JSON.parse(localStorage.getItem('grupos_comunicados') || '[]');
+    const container = document.getElementById('grupo-checkboxes');
+    if (grupos.length === 0) {
+        container.innerHTML = '<p class="text-sm text-slate-400 italic">No hay grupos creados aún. Hacé clic en "Gestionar Grupos" para crear uno.</p>';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        return;
+    }
+    container.innerHTML = grupos.map(g => `
+        <label class="curso-checkbox" onclick="this.classList.toggle('selected')">
+            <input type="checkbox" value="${g.id}"> ${g.nombre} <span class="text-xs opacity-60">(${g.alumnos ? g.alumnos.length : 0} alumnos)</span>
         </label>
     `).join('');
 }
@@ -757,7 +799,15 @@ function removeFile(index) {
 
 function createComunicado() {
     const titulo = document.getElementById('create-title').value.trim();
-    const contenido = document.getElementById('create-body').value.trim();
+    // Get content from Quill or fallback to textarea
+    let contenido = '';
+    if (quillEditor) {
+        contenido = quillEditor.root.innerHTML;
+        // Strip if only empty paragraph
+        if (contenido === '<p><br></p>') contenido = '';
+    } else {
+        contenido = document.getElementById('create-body').value.trim();
+    }
     const dest = document.getElementById('create-dest').value;
 
     if (!titulo || !contenido) {
@@ -766,24 +816,50 @@ function createComunicado() {
     }
 
     let cursosSelected = [];
+    let gruposSelected = [];
+    let tipoDestinatario = dest;
+
     if (dest === 'cursos') {
         cursosSelected = Array.from(document.querySelectorAll('#curso-checkboxes input:checked')).map(cb => cb.value);
         if (cursosSelected.length === 0) {
             alert('Por favor seleccioná al menos un curso.');
             return;
         }
+    } else if (dest === 'grupos') {
+        gruposSelected = Array.from(document.querySelectorAll('#grupo-checkboxes input:checked')).map(cb => cb.value);
+        if (gruposSelected.length === 0) {
+            alert('Por favor seleccioná al menos un grupo.');
+            return;
+        }
     }
 
+    // Fecha de envío
+    const fechaInput = document.getElementById('create-fecha').value;
+    const hoy = new Date().toISOString().split('T')[0];
+    const fechaEnvio = fechaInput || hoy;
+    const isProgramado = fechaEnvio > hoy;
+
     const newId = comunicados.length > 0 ? Math.max(...comunicados.map(c => c.id)) + 1 : 1;
+
+    // Get names of selected groups for display
+    let gruposNombres = [];
+    if (dest === 'grupos') {
+        const todosGrupos = JSON.parse(localStorage.getItem('grupos_comunicados') || '[]');
+        gruposNombres = todosGrupos.filter(g => gruposSelected.includes(String(g.id))).map(g => g.nombre);
+    }
 
     const nuevo = {
         id: newId,
         titulo: titulo,
         contenido: contenido,
-        tipo: dest === 'todos' ? 'institucional' : 'curso',
+        tipo: dest === 'todos' ? 'institucional' : dest === 'grupos' ? 'grupo' : 'curso',
         destinatarios: dest,
         cursos: cursosSelected,
-        fecha: new Date().toISOString().split('T')[0],
+        grupos: gruposSelected,
+        gruposNombres: gruposNombres,
+        fecha: fechaEnvio,
+        fechaCreacion: hoy,
+        programado: isProgramado,
         autor: roleConfig.autorLabel || roleConfig.label,
         archivos: selectedFiles.map(f => f.name),
         firmas: {}

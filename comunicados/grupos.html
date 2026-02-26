@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Grupos | Escuela Philips</title>
+    <link rel="icon" href="https://www.philips.edu.ar/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+        }
+
+        .alumno-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #eff6ff;
+            color: #2563eb;
+            border: 1px solid #bfdbfe;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .alumno-chip.selected {
+            background: #2563eb;
+            color: #fff;
+            border-color: #2563eb;
+        }
+
+        .dark .alumno-chip {
+            background: #1e3a5f;
+            color: #93c5fd;
+            border-color: #1e40af;
+        }
+
+        .dark .alumno-chip.selected {
+            background: #3b82f6;
+            color: #fff;
+            border-color: #3b82f6;
+        }
+
+        .grupo-card {
+            background: #fff;
+            border-radius: 1.5rem;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            transition: box-shadow 0.2s;
+        }
+
+        .dark .grupo-card {
+            background: #1e293b;
+        }
+
+        .grupo-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.10);
+        }
+
+        .modal-bg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-bg.active {
+            display: flex;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-[#F8FAFC] dark:bg-slate-900 text-slate-700 dark:text-slate-200 p-6">
+
+    <div class="max-w-5xl mx-auto">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-3">
+                <a href="javascript:history.back()"
+                    class="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center shadow-sm hover:bg-slate-50 transition">
+                    <i data-lucide="arrow-left" class="w-5 h-5 text-slate-500"></i>
+                </a>
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Gestión de Grupos</h1>
+                    <p class="text-sm text-slate-400 font-bold">Creá grupos de alumnos para enviar comunicados</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="toggleDarkMode()"
+                    class="w-10 h-10 bg-white dark:bg-slate-700 rounded-xl flex items-center justify-center shadow-sm hover:scale-110 transition">
+                    <i data-lucide="sun" class="w-5 h-5 text-amber-500 dark:hidden"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-slate-300 hidden dark:block"></i>
+                </button>
+                <button onclick="openCreateGroup()"
+                    class="flex items-center gap-2 px-4 py-2.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition shadow-sm">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Grupo
+                </button>
+            </div>
+        </div>
+
+        <!-- Grupos list -->
+        <div id="grupos-list" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- Populated by JS -->
+        </div>
+        <div id="grupos-empty" class="hidden text-center py-20">
+            <div
+                class="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <i data-lucide="users" class="w-8 h-8 text-blue-400"></i>
+            </div>
+            <p class="text-slate-500 dark:text-slate-400 font-bold text-lg">No hay grupos creados</p>
+            <p class="text-sm text-slate-400 mt-1">Crea un grupo para enviar comunicados a alumnos específicos</p>
+            <button onclick="openCreateGroup()"
+                class="mt-4 px-5 py-2.5 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition inline-flex items-center gap-2">
+                <i data-lucide="plus" class="w-4 h-4"></i> Crear primer grupo
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: Crear / Editar Grupo -->
+    <div id="modal-grupo" class="modal-bg" onclick="if(event.target===this)closeGroupModal()">
+        <div
+            class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-2xl w-full max-w-3xl mx-4 max-h-[90vh] flex flex-col overflow-hidden">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-700 flex items-center justify-between">
+                <h2 id="modal-title" class="text-xl font-extrabold text-slate-800 dark:text-slate-100">Nuevo Grupo</h2>
+                <button onclick="closeGroupModal()"
+                    class="w-9 h-9 rounded-xl bg-slate-100 dark:bg-slate-700 flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-6 space-y-5">
+                <div>
+                    <label class="text-xs font-extrabold text-slate-500 uppercase mb-1.5 block">Nombre del Grupo</label>
+                    <input type="text" id="grupo-nombre" placeholder="Ej: Grupo Deportes, Banda del Colegio..."
+                        class="w-full px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700 font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                </div>
+                <div>
+                    <label class="text-xs font-extrabold text-slate-500 uppercase mb-1.5 block">Seleccionar
+                        Alumnos</label>
+                    <div class="flex gap-3 mb-3">
+                        <div class="relative flex-1">
+                            <i data-lucide="search"
+                                class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                            <input type="text" id="alumno-search" placeholder="Buscar por nombre o curso..."
+                                oninput="filterAlumnoSelector()"
+                                class="w-full pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        </div>
+                        <select id="curso-filter-select" onchange="filterAlumnoSelector()"
+                            class="text-sm border border-slate-200 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold px-3 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                            <option value="">Todos los cursos</option>
+                        </select>
+                    </div>
+                    <p class="text-xs text-slate-400 mb-2 font-bold"><span id="selected-count">0</span> alumnos
+                        seleccionados</p>
+                    <div id="alumnos-selector"
+                        class="flex flex-wrap gap-2 max-h-52 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-700 rounded-xl border border-slate-100 dark:border-slate-600">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+            <div class="p-5 border-t border-slate-100 dark:border-slate-700 flex justify-end gap-3">
+                <button onclick="closeGroupModal()"
+                    class="px-5 py-2 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold hover:bg-slate-200 dark:hover:bg-slate-600 transition">
+                    Cancelar
+                </button>
+                <button onclick="saveGroup()"
+                    class="px-5 py-2 bg-blue-500 text-white rounded-xl font-bold hover:bg-blue-600 transition flex items-center gap-2">
+                    <i data-lucide="save" class="w-4 h-4"></i> Guardar Grupo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/theme.js"></script>
+    <script>
+        const CURSOS = ['1° A', '1° B', '2° A', '2° B', '3° A', '3° B', '4° A', '4° B', '5° A', '5° B', '6° A', '6° B'];
+
+        // Demo students pool
+        const ALL_ALUMNOS = [];
+        const NAMES = ['García, Lucas', 'López, Valentina', 'Martínez, Tomás', 'Rodríguez, Camila',
+            'Pérez, Mateo', 'Fernández, Sofía', 'González, Benjamín', 'Díaz, Mía', 'Ruiz, Thiago',
+            'Sánchez, Emma', 'Torres, Lautaro', 'Ramírez, Isabella', 'Flores, Juan', 'Acosta, Alma',
+            'Herrera, Felipe', 'Medina, Catalina', 'Castro, Joaquín', 'Vargas, Delfina'];
+        CURSOS.forEach((curso, ci) => {
+            for (let i = 0; i < Math.floor(Math.random() * 4) + 5; i++) {
+                ALL_ALUMNOS.push({
+                    id: `${curso}-${i}`,
+                    nombre: NAMES[(ci * 3 + i) % NAMES.length],
+                    curso
+                });
+            }
+        });
+
+        let grupos = JSON.parse(localStorage.getItem('grupos_comunicados') || '[]');
+        let selectedAlumnos = new Set();
+        let editingGroupId = null;
+
+        function renderGrupos() {
+            const list = document.getElementById('grupos-list');
+            const empty = document.getElementById('grupos-empty');
+            if (grupos.length === 0) {
+                list.innerHTML = '';
+                empty.classList.remove('hidden');
+                return;
+            }
+            empty.classList.add('hidden');
+            list.innerHTML = grupos.map(g => `
+                <div class="grupo-card p-5">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="font-extrabold text-slate-800 dark:text-slate-100 text-lg">${g.nombre}</h3>
+                            <p class="text-xs text-slate-400 font-bold mt-0.5">${(g.alumnos || []).length} alumnos</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editGroup('${g.id}')"
+                                class="w-8 h-8 rounded-xl bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-blue-500 hover:bg-blue-100 transition">
+                                <i data-lucide="edit-2" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteGroup('${g.id}')"
+                                class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-400 hover:bg-red-100 transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        ${(g.alumnos || []).slice(0, 6).map(a => `
+                            <span class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full">${a.nombre}</span>
+                        `).join('')}
+                        ${(g.alumnos || []).length > 6 ? `<span class="text-xs font-bold px-2.5 py-1 bg-slate-100 dark:bg-slate-700 text-slate-400 rounded-full">+${(g.alumnos || []).length - 6} más</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function openCreateGroup() {
+            editingGroupId = null;
+            selectedAlumnos = new Set();
+            document.getElementById('grupo-nombre').value = '';
+            document.getElementById('alumno-search').value = '';
+            document.getElementById('curso-filter-select').value = '';
+            document.getElementById('modal-title').textContent = 'Nuevo Grupo';
+            renderAlumnosSelector();
+            document.getElementById('modal-grupo').classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function editGroup(id) {
+            const g = grupos.find(x => x.id === id);
+            if (!g) return;
+            editingGroupId = id;
+            selectedAlumnos = new Set((g.alumnos || []).map(a => a.id));
+            document.getElementById('grupo-nombre').value = g.nombre;
+            document.getElementById('alumno-search').value = '';
+            document.getElementById('curso-filter-select').value = '';
+            document.getElementById('modal-title').textContent = 'Editar Grupo';
+            renderAlumnosSelector();
+            document.getElementById('modal-grupo').classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function closeGroupModal() {
+            document.getElementById('modal-grupo').classList.remove('active');
+        }
+
+        function buildCursoOptions() {
+            const sel = document.getElementById('curso-filter-select');
+            sel.innerHTML = '<option value="">Todos los cursos</option>' +
+                CURSOS.map(c => `<option value="${c}">${c}</option>`).join('');
+        }
+
+        function filterAlumnoSelector() {
+            renderAlumnosSelector();
+        }
+
+        function renderAlumnosSelector() {
+            const search = (document.getElementById('alumno-search').value || '').toLowerCase();
+            const cursoFilter = document.getElementById('curso-filter-select').value;
+            const filtered = ALL_ALUMNOS.filter(a =>
+                (!search || a.nombre.toLowerCase().includes(search) || a.curso.toLowerCase().includes(search)) &&
+                (!cursoFilter || a.curso === cursoFilter)
+            );
+            const container = document.getElementById('alumnos-selector');
+            container.innerHTML = filtered.map(a => `
+                <span class="alumno-chip ${selectedAlumnos.has(a.id) ? 'selected' : ''}"
+                    onclick="toggleAlumno('${a.id}', this)">
+                    ${a.nombre}
+                    <span class="opacity-60 font-normal">${a.curso}</span>
+                </span>
+            `).join('');
+            updateSelectedCount();
+        }
+
+        function toggleAlumno(id, el) {
+            if (selectedAlumnos.has(id)) {
+                selectedAlumnos.delete(id);
+                el.classList.remove('selected');
+            } else {
+                selectedAlumnos.add(id);
+                el.classList.add('selected');
+            }
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            document.getElementById('selected-count').textContent = selectedAlumnos.size;
+        }
+
+        function saveGroup() {
+            const nombre = document.getElementById('grupo-nombre').value.trim();
+            if (!nombre) {
+                alert('Ingresá un nombre para el grupo.');
+                return;
+            }
+            if (selectedAlumnos.size === 0) {
+                alert('Seleccioná al menos un alumno.');
+                return;
+            }
+            const alumnos = ALL_ALUMNOS.filter(a => selectedAlumnos.has(a.id));
+            if (editingGroupId) {
+                const idx = grupos.findIndex(g => g.id === editingGroupId);
+                if (idx !== -1) grupos[idx] = { id: editingGroupId, nombre, alumnos };
+            } else {
+                grupos.push({ id: Date.now().toString(), nombre, alumnos });
+            }
+            localStorage.setItem('grupos_comunicados', JSON.stringify(grupos));
+            closeGroupModal();
+            renderGrupos();
+        }
+
+        function deleteGroup(id) {
+            if (!confirm('¿Eliminar este grupo?')) return;
+            grupos = grupos.filter(g => g.id !== id);
+            localStorage.setItem('grupos_comunicados', JSON.stringify(grupos));
+            renderGrupos();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            buildCursoOptions();
+            renderGrupos();
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        });
+    </script>
+</body>
+
+</html>
