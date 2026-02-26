@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comunicados | Escuela Philips</title>
+    <link rel="icon" href="https://www.philips.edu.ar/favicon.png" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="../assets/css/common.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="comunicados.css">
+</head>
+
+<body data-theme="alumno"
+    class="text-slate-600 dark:text-slate-300 flex h-screen overflow-hidden bg-[#F8FAFC] dark:bg-slate-900">
+
+    <!-- SIDEBAR -->
+    <aside
+        class="w-20 hover:w-72 bg-white dark:bg-slate-800 border-r border-blue-50 dark:border-slate-700 flex flex-col h-full z-20 shadow-sm flex-shrink-0 transition-all duration-300 group overflow-hidden">
+        <div class="p-6 flex items-center gap-3 min-w-max">
+            <div class="w-10 h-10 flex items-center justify-center flex-shrink-0">
+                <img src="https://www.philips.edu.ar/favicon.png" alt="Logo" class="w-10 h-10 object-contain">
+            </div>
+            <h1
+                class="font-extrabold text-xl text-slate-800 dark:text-slate-100 tracking-tight whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                Escuela Philips</h1>
+        </div>
+
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto py-2">
+            <a href="#" id="nav-panel"
+                class="nav-btn w-full flex items-center gap-4 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 rounded-2xl font-bold transition-all text-left min-w-max">
+                <i data-lucide="house" class="w-6 h-6 flex-shrink-0"></i>
+                <span
+                    class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Panel</span>
+            </a>
+            <a href="#" data-page="comunicados"
+                class="nav-btn active w-full flex items-center gap-4 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-slate-700 hover:text-blue-600 dark:hover:text-blue-400 rounded-2xl font-bold transition-all text-left min-w-max">
+                <i data-lucide="megaphone" class="w-6 h-6 flex-shrink-0"></i>
+                <span
+                    class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Comunicados</span>
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-blue-50 dark:border-slate-700">
+            <a href="#" id="nav-logout"
+                class="w-full flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/20 rounded-2xl font-bold transition-all text-left min-w-max">
+                <i data-lucide="log-out" class="w-6 h-6 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Cerrar
+                    Sesión</span>
+            </a>
+            <a href="../centro-ayuda.html"
+                class="w-full flex items-center gap-4 px-4 py-3 text-slate-400 hover:bg-slate-50 hover:text-slate-600 dark:hover:bg-slate-700 dark:hover:text-slate-300 rounded-2xl font-bold transition-all text-left min-w-max mt-1">
+                <i data-lucide="life-buoy" class="w-6 h-6 flex-shrink-0"></i>
+                <span class="opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">Centro
+                    de Ayuda</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden bg-[#F8FAFC] dark:bg-slate-900">
+        <!-- Header -->
+        <header
+            class="h-20 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-blue-50 dark:border-slate-700 flex items-center justify-between px-8 z-10 sticky top-0">
+            <h2 id="page-title" class="text-2xl font-extrabold text-slate-800 dark:text-slate-100">Comunicados
+                Institucionales</h2>
+            <div class="flex items-center gap-4">
+                <button onclick="toggleDarkMode()"
+                    class="w-10 h-10 bg-blue-50 dark:bg-slate-700 rounded-xl flex items-center justify-center hover:scale-110 transition-all">
+                    <i data-lucide="sun" class="w-5 h-5 text-amber-500 dark:hidden"></i>
+                    <i data-lucide="moon" class="w-5 h-5 text-slate-300 hidden dark:block"></i>
+                </button>
+                <div id="role-badge" class="hidden items-center gap-2 px-3 py-1.5 rounded-xl">
+                    <div class="w-6 h-6 rounded-lg flex items-center justify-center">
+                        <i data-lucide="shield-check" class="w-3.5 h-3.5 text-white"></i>
+                    </div>
+                    <span class="text-xs font-bold" id="role-badge-text"></span>
+                </div>
+                <div class="text-right leading-tight">
+                    <p id="user-name" class="text-sm font-bold text-slate-700 dark:text-slate-200"></p>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content area -->
+        <div class="flex-1 overflow-y-auto p-8">
+
+            <!-- NO ACCESS (Profesor) -->
+            <div id="no-access-section" class="hidden">
+                <div class="no-access">
+                    <div
+                        class="w-20 h-20 bg-red-50 dark:bg-red-900/20 rounded-2xl flex items-center justify-center mb-2">
+                        <i data-lucide="shield-x" class="w-10 h-10 text-red-400"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100">Acceso Restringido</h3>
+                    <p class="text-slate-500 dark:text-slate-400 max-w-md">No tenés permisos para acceder al módulo de
+                        comunicados. Si creés que es un error, contactá al administrador.</p>
+                    <a id="no-access-back" href="#" class="mt-4 btn-primary">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Volver al Panel
+                    </a>
+                </div>
+            </div>
+
+            <!-- MAIN COMUNICADOS SECTION -->
+            <div id="comunicados-section" class="hidden">
+                <section class="max-w-6xl mx-auto space-y-6">
+
+                    <!-- Stats row (only for preceptor/secretario/admin) -->
+                    <div id="stats-row" class="hidden grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="stat-card">
+                            <div class="stat-icon bg-blue-100 dark:bg-blue-900/30">
+                                <i data-lucide="megaphone" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100" id="stat-total">0
+                                </p>
+                                <p class="text-xs font-bold text-slate-400">Total Comunicados</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-green-100 dark:bg-green-900/30">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100"
+                                    id="stat-firmados">0</p>
+                                <p class="text-xs font-bold text-slate-400">Firmados Hoy</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon bg-amber-100 dark:bg-amber-900/30">
+                                <i data-lucide="clock" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-2xl font-extrabold text-slate-800 dark:text-slate-100"
+                                    id="stat-pendientes">0</p>
+                                <p class="text-xs font-bold text-slate-400">Firmas Pendientes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main card -->
+                    <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm overflow-hidden">
+                        <!-- Toolbar -->
+                        <div
+                            class="p-5 border-b border-slate-50 dark:border-slate-700 flex flex-wrap justify-between items-center gap-4">
+                            <div class="flex items-center gap-3">
+                                <h3
+                                    class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-lg">
+                                    <i data-lucide="inbox" class="w-5 h-5"></i> Bandeja de Comunicados
+                                </h3>
+                                <!-- Tabs for management roles -->
+                                <div id="tabs-container" class="hidden tabs-container ml-2">
+                                    <button class="tab-btn active" data-tab="todos"
+                                        onclick="filterTab('todos')">Todos</button>
+                                    <button class="tab-btn" data-tab="institucional"
+                                        onclick="filterTab('institucional')">Institucionales</button>
+                                    <button class="tab-btn" data-tab="curso" onclick="filterTab('curso')">Por
+                                        Curso</button>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="search-box">
+                                    <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+                                    <input type="text" placeholder="Buscar comunicado..." id="search-input"
+                                        oninput="filterComunicados()">
+                                </div>
+                                <!-- Create button (only for preceptor/secretario/admin) -->
+                                <button id="btn-crear" class="hidden btn-primary" onclick="openCreateModal()">
+                                    <i data-lucide="plus" class="w-4 h-4"></i> Nuevo Comunicado
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Comunicados list -->
+                        <div id="comunicados-list">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Empty state -->
+                        <div id="empty-state" class="hidden empty-state">
+                            <i data-lucide="megaphone" class="w-16 h-16 mx-auto text-slate-300 dark:text-slate-600"></i>
+                            <p class="text-slate-400 dark:text-slate-500 font-bold mt-3">No hay comunicados para
+                                mostrar</p>
+                            <p class="text-sm text-slate-400 dark:text-slate-600 mt-1">Los nuevos comunicados
+                                aparecerán aquí</p>
+                        </div>
+                    </div>
+
+                    <!-- Firmas Panel (only for preceptor/secretario/admin) -->
+                    <div id="firmas-section" class="hidden">
+                        <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-sm overflow-hidden">
+                            <div
+                                class="p-5 border-b border-slate-50 dark:border-slate-700 flex justify-between items-center">
+                                <h3
+                                    class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-lg">
+                                    <i data-lucide="clipboard-list" class="w-5 h-5"></i> Estado de Firmas
+                                </h3>
+                                <select id="firmas-comunicado-select" class="form-select"
+                                    style="width: auto; min-width: 250px;" onchange="loadFirmasForComunicado()">
+                                    <option value="">Seleccionar comunicado...</option>
+                                </select>
+                            </div>
+                            <div id="firmas-content">
+                                <div class="empty-state">
+                                    <i data-lucide="clipboard-list"
+                                        class="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600"></i>
+                                    <p class="text-slate-400 dark:text-slate-500 font-bold mt-3">Seleccioná un
+                                        comunicado para ver el estado de firmas</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL: View Comunicado Detail -->
+    <div id="modal-detail" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-detail')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="flex-1 pr-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span id="detail-badge" class="badge badge-institucional"></span>
+                        <span id="detail-date" class="text-xs text-slate-400 font-bold"></span>
+                    </div>
+                    <h3 id="detail-title" class="text-xl font-extrabold text-slate-800 dark:text-slate-100"></h3>
+                </div>
+                <button class="modal-close" onclick="closeModal('modal-detail')">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="detail-body" class="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4"></div>
+                <div id="detail-dest" class="mb-4">
+                    <p class="text-xs font-bold text-slate-400 mb-1">Destinatarios</p>
+                    <p id="detail-dest-text" class="text-sm font-bold text-slate-600 dark:text-slate-300"></p>
+                </div>
+                <div id="detail-attachments" class="hidden">
+                    <p class="text-xs font-bold text-slate-400 mb-2">Archivos Adjuntos</p>
+                    <div id="detail-files-list"></div>
+                </div>
+            </div>
+            <div class="modal-footer" id="detail-footer">
+                <!-- Dynamic buttons based on role -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Create Comunicado -->
+    <div id="modal-create" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-create')">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="text-xl font-extrabold text-slate-800 dark:text-slate-100">Nuevo Comunicado</h3>
+                <button class="modal-close" onclick="closeModal('modal-create')">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Título del Comunicado</label>
+                    <input type="text" class="form-input" id="create-title"
+                        placeholder="Ej: Acto del Día de la Bandera">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Contenido</label>
+                    <textarea class="form-textarea" id="create-body"
+                        placeholder="Escribí el contenido del comunicado..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Destinatarios</label>
+                    <select class="form-select" id="create-dest" onchange="toggleCursoSelector()">
+                        <option value="todos">Todo el Colegio</option>
+                        <option value="cursos">Cursos Específicos</option>
+                    </select>
+                </div>
+                <div class="form-group hidden" id="curso-selector-group">
+                    <label class="form-label">Seleccionar Cursos</label>
+                    <div class="flex flex-wrap gap-2" id="curso-checkboxes">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Archivos Adjuntos (opcional)</label>
+                    <div class="file-upload-area" onclick="document.getElementById('file-input').click()">
+                        <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
+                        <p class="text-sm font-bold text-slate-500">Hacé clic para adjuntar archivos</p>
+                        <p class="text-xs text-slate-400 mt-1">PDF, DOC, XLS, JPG, PNG (máx. 10MB)</p>
+                        <input type="file" id="file-input" class="hidden" multiple onchange="handleFileSelect(event)">
+                        <div class="file-list" id="file-list"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeModal('modal-create')">Cancelar</button>
+                <button class="btn-primary" onclick="createComunicado()">
+                    <i data-lucide="send" class="w-4 h-4"></i> Enviar Comunicado
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Confirm Sign -->
+    <div id="modal-sign" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-sign')">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Confirmar Firma</h3>
+                <button class="modal-close" onclick="closeModal('modal-sign')">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/20 rounded-xl mb-4">
+                    <i data-lucide="pen-tool" class="w-8 h-8 text-green-500"></i>
+                    <div>
+                        <p class="font-bold text-slate-700 dark:text-slate-200">¿Confirmar la firma?</p>
+                        <p class="text-sm text-slate-500 dark:text-slate-400">Esta acción no se puede deshacer.</p>
+                    </div>
+                </div>
+                <p class="text-sm text-slate-500 dark:text-slate-400">
+                    Comunicado: <strong id="sign-comunicado-title" class="text-slate-700 dark:text-slate-200"></strong>
+                </p>
+                <div class="form-group mt-4">
+                    <label class="form-label">Clave de firma</label>
+                    <input type="password" class="form-input" id="sign-password"
+                        placeholder="Ingresá tu clave para firmar">
+                    <p id="sign-password-error" class="hidden text-xs text-red-500 font-bold mt-1"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-sign')">Cancelar</button>
+                    <button class="btn-sign" id="btn-confirm-sign" onclick="confirmSign()">
+                        <i data-lucide="check" class="w-4 h-4"></i> Firmar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODAL: Confirm Delete -->
+        <div id="modal-delete" class="modal-overlay" onclick="if(event.target===this)closeModal('modal-delete')">
+            <div class="modal-content" style="max-width: 450px;">
+                <div class="modal-header">
+                    <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Eliminar Comunicado</h3>
+                    <button class="modal-close" onclick="closeModal('modal-delete')">
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/20 rounded-xl mb-4">
+                        <i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>
+                        <div>
+                            <p class="font-bold text-slate-700 dark:text-slate-200">¿Eliminar este comunicado?</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">Esta acción no se puede deshacer. Se
+                                eliminará para todos los usuarios.</p>
+                        </div>
+                    </div>
+                    <p class="text-sm text-slate-500 dark:text-slate-400">
+                        Comunicado: <strong id="delete-comunicado-title"
+                            class="text-slate-700 dark:text-slate-200"></strong>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeModal('modal-delete')">Cancelar</button>
+                    <button class="btn-danger" id="btn-confirm-delete" onclick="confirmDelete()">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i> Eliminar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <script src="../assets/js/theme.js"></script>
+        <script src="../assets/js/dashboard.js"></script>
+        <script src="comunicados.js"></script>
+</body>
+
+</html>
