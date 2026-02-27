@@ -12,6 +12,64 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../../assets/css/common.css">
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <style>
+        .tab-btn {
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active-tab {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            box-shadow: 0 4px 15px -3px rgba(79, 70, 229, 0.4);
+        }
+
+        .dark .tab-btn.active-tab {
+            background: linear-gradient(135deg, #4338ca, #6d28d9);
+            box-shadow: 0 4px 15px -3px rgba(67, 56, 202, 0.3);
+        }
+
+        .nota-cell {
+            min-width: 60px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .table-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+
+        .promedio-badge {
+            background: linear-gradient(135deg, #10b981, #059669);
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 25px rgba(16, 185, 129, 0.5);
+            }
+        }
+
+        .hijo-select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+    </style>
 </head>
 
 <body data-theme="tutor"
@@ -32,24 +90,282 @@
                 </div>
             </div>
         </header>
+
         <div class="flex-1 overflow-y-auto p-8">
-            <section class="max-w-5xl mx-auto">
-                <div class="bg-white dark:bg-slate-800 rounded-[2rem] p-8 shadow-sm">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">Boletines del Alumno</h3>
-                    <div class="text-center py-12">
-                        <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 opacity-50 text-slate-400"></i>
-                        <p class="text-slate-500 dark:text-slate-400 mb-2">Funcionalidad de descarga de boletines
-                            disponible próximamente</p>
-                        <p class="text-xs text-slate-400">Podrás descargar los boletines del alumno en formato PDF</p>
+            <section class="max-w-6xl mx-auto space-y-6">
+                <!-- Selector de hijo -->
+                <div class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <div
+                                class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-200 dark:shadow-indigo-900/30">
+                                <i data-lucide="users" class="w-7 h-7 text-white"></i>
+                            </div>
+                            <div>
+                                <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Boletín del Alumno
+                                </h3>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Seleccioná el hijo/a para ver sus
+                                    calificaciones</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <select id="hijo-select" onchange="cambiarHijo()"
+                                class="hijo-select px-5 py-3 pr-10 rounded-xl border-2 border-indigo-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm focus:border-indigo-400 focus:outline-none transition-all cursor-pointer">
+                                <option value="0">García, Juan — 6to A Electrónica</option>
+                                <option value="1">García, Lucía — 3ro B Informática</option>
+                            </select>
+                            <button onclick="alert('Descargando PDF...')"
+                                class="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-200 dark:hover:shadow-indigo-900/30 hover:-translate-y-0.5 transition-all text-sm whitespace-nowrap">
+                                <i data-lucide="download" class="w-4 h-4"></i> PDF
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info alumno seleccionado -->
+                <div id="info-alumno"
+                    class="bg-indigo-50 dark:bg-indigo-900/20 rounded-2xl p-4 flex items-center gap-3">
+                    <i data-lucide="user" class="w-5 h-5 text-indigo-500 dark:text-indigo-400"></i>
+                    <p class="text-sm font-bold text-indigo-700 dark:text-indigo-300" id="info-alumno-text">García, Juan
+                        Pablo — 6to Año A — Especialidad Electrónica — Ciclo Lectivo 2026</p>
+                </div>
+
+                <!-- Tabs cuatrimestres -->
+                <div class="flex gap-2">
+                    <button onclick="showCuatri(1)" id="tab-c1"
+                        class="tab-btn active-tab px-6 py-3 rounded-xl font-bold text-sm">
+                        1er Cuatrimestre
+                    </button>
+                    <button onclick="showCuatri(2)" id="tab-c2"
+                        class="tab-btn px-6 py-3 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700">
+                        2do Cuatrimestre
+                    </button>
+                </div>
+
+                <!-- Tabla 1er Cuatrimestre -->
+                <div id="cuatri-1" class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                            <i data-lucide="book-open" class="w-5 h-5 text-indigo-600 dark:text-indigo-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">1er Cuatrimestre</h3>
+                            <p class="text-xs text-slate-400">Marzo - Julio 2026</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-slate-100 dark:border-slate-700">
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Materia</th>
+                                    <th class="text-center py-3 px-2 font-bold text-indigo-500 nota-cell">1er Bim</th>
+                                    <th class="text-center py-3 px-2 font-bold text-indigo-500 nota-cell">2do Bim</th>
+                                    <th
+                                        class="text-center py-3 px-2 font-extrabold text-purple-600 dark:text-purple-400 nota-cell">
+                                        Nota Cuatri</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-c1"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <div class="promedio-badge text-white px-6 py-3 rounded-2xl flex items-center gap-3">
+                            <i data-lucide="trophy" class="w-5 h-5"></i>
+                            <div>
+                                <p class="text-xs font-semibold opacity-80">Promedio 1er Cuatrimestre</p>
+                                <p class="text-2xl font-black" id="prom-c1">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla 2do Cuatrimestre -->
+                <div id="cuatri-2" class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm hidden">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div
+                            class="w-10 h-10 rounded-xl bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                            <i data-lucide="book-open" class="w-5 h-5 text-purple-600 dark:text-purple-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">2do Cuatrimestre</h3>
+                            <p class="text-xs text-slate-400">Agosto - Diciembre 2026</p>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-slate-100 dark:border-slate-700">
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Materia</th>
+                                    <th class="text-center py-3 px-2 font-bold text-purple-500 nota-cell">3er Bim</th>
+                                    <th class="text-center py-3 px-2 font-bold text-purple-500 nota-cell">4to Bim</th>
+                                    <th
+                                        class="text-center py-3 px-2 font-extrabold text-purple-600 dark:text-purple-400 nota-cell">
+                                        Nota Cuatri</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-c2"></tbody>
+                        </table>
+                    </div>
+                    <div class="mt-6 flex justify-end">
+                        <div class="promedio-badge text-white px-6 py-3 rounded-2xl flex items-center gap-3">
+                            <i data-lucide="trophy" class="w-5 h-5"></i>
+                            <div>
+                                <p class="text-xs font-semibold opacity-80">Promedio 2do Cuatrimestre</p>
+                                <p class="text-2xl font-black" id="prom-c2">—</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Promedio General -->
+                <div
+                    class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 rounded-[2rem] p-8 text-white relative overflow-hidden shadow-lg shadow-indigo-200 dark:shadow-indigo-900/20">
+                    <div class="absolute inset-0 opacity-10">
+                        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white rounded-full"></div>
+                        <div class="absolute -left-5 -bottom-5 w-32 h-32 bg-white rounded-full"></div>
+                    </div>
+                    <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div class="flex items-center gap-4">
+                            <i data-lucide="award" class="w-12 h-12 opacity-80"></i>
+                            <div>
+                                <h3 class="text-2xl font-black">Promedio General Anual</h3>
+                                <p class="text-indigo-100 text-sm font-semibold">Ciclo Lectivo 2026</p>
+                            </div>
+                        </div>
+                        <div class="text-5xl font-black" id="prom-general">—</div>
                     </div>
                 </div>
             </section>
         </div>
     </main>
+
     <script src="../../assets/js/theme.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
     <script src="../../assets/js/dashboard.js"></script>
-    <script>initSidebar('tutor', 'boletines'); updatePageTitle('Boletines');</script>
+    <script>
+        initSidebar('tutor', 'boletines');
+        updatePageTitle('Boletines');
+
+        // Datos demo por hijo
+        const hijos = [
+            {
+                nombre: 'García, Juan Pablo',
+                curso: '6to Año A — Especialidad Electrónica',
+                materias: [
+                    { nombre: 'Matemática', b1: 8, b2: 7, b3: 9, b4: 8 },
+                    { nombre: 'Lengua y Literatura', b1: 9, b2: 8, b3: 8, b4: 9 },
+                    { nombre: 'Historia', b1: 7, b2: 8, b3: 7, b4: 8 },
+                    { nombre: 'Geografía', b1: 8, b2: 9, b3: 8, b4: 7 },
+                    { nombre: 'Educación Física', b1: 10, b2: 10, b3: 10, b4: 10 },
+                    { nombre: 'Inglés', b1: 9, b2: 9, b3: 8, b4: 9 },
+                    { nombre: 'Sistemas Digitales', b1: 8, b2: 7, b3: 9, b4: 8 },
+                    { nombre: 'Laboratorio Electrónica', b1: 9, b2: 8, b3: 9, b4: 9 },
+                    { nombre: 'Proyecto Tecnológico', b1: 10, b2: 9, b3: null, b4: null },
+                    { nombre: 'Física', b1: 7, b2: 6, b3: null, b4: null },
+                    { nombre: 'Formación Ética', b1: 9, b2: 9, b3: null, b4: null },
+                ]
+            },
+            {
+                nombre: 'García, Lucía',
+                curso: '3ro Año B — Informática',
+                materias: [
+                    { nombre: 'Matemática', b1: 9, b2: 9, b3: null, b4: null },
+                    { nombre: 'Lengua y Literatura', b1: 10, b2: 9, b3: null, b4: null },
+                    { nombre: 'Historia', b1: 8, b2: 8, b3: null, b4: null },
+                    { nombre: 'Geografía', b1: 9, b2: 10, b3: null, b4: null },
+                    { nombre: 'Educación Física', b1: 10, b2: 10, b3: null, b4: null },
+                    { nombre: 'Inglés', b1: 8, b2: 9, b3: null, b4: null },
+                    { nombre: 'Informática', b1: 10, b2: 10, b3: null, b4: null },
+                    { nombre: 'Biología', b1: 7, b2: 8, b3: null, b4: null },
+                ]
+            }
+        ];
+
+        function notaCell(nota) {
+            if (nota === null) return '<span class="text-slate-300 dark:text-slate-600">—</span>';
+            let color = 'text-slate-700 dark:text-slate-200';
+            if (nota >= 9) color = 'text-emerald-600 dark:text-emerald-400 font-extrabold';
+            else if (nota >= 7) color = 'text-blue-600 dark:text-blue-400 font-bold';
+            else if (nota >= 4) color = 'text-amber-600 dark:text-amber-400 font-bold';
+            else color = 'text-red-600 dark:text-red-400 font-extrabold';
+            return `<span class="${color}">${nota}</span>`;
+        }
+
+        function promedio(a, b) {
+            if (a === null || b === null) return null;
+            return Math.round((a + b) / 2 * 10) / 10;
+        }
+
+        function renderTablas() {
+            const sel = document.getElementById('hijo-select').value;
+            const hijo = hijos[sel];
+            document.getElementById('info-alumno-text').textContent = `${hijo.nombre} — ${hijo.curso} — Ciclo Lectivo 2026`;
+
+            const tbody1 = document.getElementById('tbody-c1');
+            const tbody2 = document.getElementById('tbody-c2');
+            tbody1.innerHTML = '';
+            tbody2.innerHTML = '';
+            let sumC1 = 0, countC1 = 0, sumC2 = 0, countC2 = 0;
+
+            hijo.materias.forEach((m, i) => {
+                const notaC1 = promedio(m.b1, m.b2);
+                const notaC2 = promedio(m.b3, m.b4);
+                const rowClass = i % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : '';
+
+                tbody1.innerHTML += `
+                    <tr class="${rowClass} hover:bg-indigo-50/50 dark:hover:bg-slate-700/40 transition-colors">
+                        <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">${m.nombre}</td>
+                        <td class="py-3 px-2 text-center">${notaCell(m.b1)}</td>
+                        <td class="py-3 px-2 text-center">${notaCell(m.b2)}</td>
+                        <td class="py-3 px-2 text-center font-extrabold">${notaCell(notaC1)}</td>
+                    </tr>`;
+
+                tbody2.innerHTML += `
+                    <tr class="${rowClass} hover:bg-purple-50/50 dark:hover:bg-slate-700/40 transition-colors">
+                        <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">${m.nombre}</td>
+                        <td class="py-3 px-2 text-center">${notaCell(m.b3)}</td>
+                        <td class="py-3 px-2 text-center">${notaCell(m.b4)}</td>
+                        <td class="py-3 px-2 text-center font-extrabold">${notaCell(notaC2)}</td>
+                    </tr>`;
+
+                if (notaC1 !== null) { sumC1 += notaC1; countC1++; }
+                if (notaC2 !== null) { sumC2 += notaC2; countC2++; }
+            });
+
+            const promC1 = countC1 > 0 ? (sumC1 / countC1).toFixed(1) : '—';
+            const promC2 = countC2 > 0 ? (sumC2 / countC2).toFixed(1) : '—';
+            document.getElementById('prom-c1').textContent = promC1;
+            document.getElementById('prom-c2').textContent = promC2;
+
+            const promGen = (countC1 > 0 && countC2 > 0)
+                ? ((parseFloat(promC1) + parseFloat(promC2)) / 2).toFixed(1)
+                : (countC1 > 0 ? promC1 : '—');
+            document.getElementById('prom-general').textContent = promGen;
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function cambiarHijo() {
+            renderTablas();
+        }
+
+        function showCuatri(n) {
+            document.getElementById('cuatri-1').classList.toggle('hidden', n !== 1);
+            document.getElementById('cuatri-2').classList.toggle('hidden', n !== 2);
+            if (n === 1) {
+                document.getElementById('tab-c1').className = 'tab-btn active-tab px-6 py-3 rounded-xl font-bold text-sm';
+                document.getElementById('tab-c2').className = 'tab-btn px-6 py-3 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700';
+            } else {
+                document.getElementById('tab-c2').className = 'tab-btn active-tab px-6 py-3 rounded-xl font-bold text-sm';
+                document.getElementById('tab-c1').className = 'tab-btn px-6 py-3 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700';
+            }
+        }
+
+        renderTablas();
+    </script>
 </body>
 
 </html>

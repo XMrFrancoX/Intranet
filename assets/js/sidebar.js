@@ -19,7 +19,6 @@ const SIDEBAR_CONFIG = {
             { page: 'adeudados', icon: 'book-x', label: 'Temas Adeudados', url: 'adeudados.html' },
             { page: 'asistencia', icon: 'clipboard-check', label: 'Asistencia', url: 'asistencia.html' },
             { page: 'notificaciones', icon: 'bell', label: 'Notificaciones', url: 'notificaciones.html' },
-            { page: 'asistencia-clases', icon: 'list-checks', label: 'Asistencia Clases', url: 'asistencia-clases.html' },
             { page: 'horario', icon: 'calendar-clock', label: 'Horario', url: 'horario.html' },
         ]
     },
@@ -36,7 +35,6 @@ const SIDEBAR_CONFIG = {
             { page: 'calificaciones', icon: 'bar-chart-3', label: 'Calificaciones', url: 'calificaciones.html' },
             { page: 'asistencia', icon: 'calendar-check', label: 'Asistencia', url: 'asistencia.html' },
             { page: 'horario', icon: 'calendar-clock', label: 'Horario', url: 'horario.html' },
-            { page: 'boletines', icon: 'file-text', label: 'Boletines', url: 'boletines.html' },
             {
                 page: 'comunicados',
                 icon: 'megaphone',
@@ -47,6 +45,7 @@ const SIDEBAR_CONFIG = {
             },
             { page: 'mensajes', icon: 'message-circle', label: 'Mensajes', url: 'mensajes.html' },
             { page: 'justificaciones', icon: 'file-check', label: 'Justificaciones', url: 'justificaciones.html' },
+            { page: 'permisos-salida', icon: 'door-open', label: 'Permisos de Salida', url: 'permisos-salida.html' },
             { page: 'legajo', icon: 'folder-open', label: 'Legajo', url: 'legajo.html' },
         ]
     },
@@ -64,6 +63,7 @@ const SIDEBAR_CONFIG = {
             { page: 'alumnos', icon: 'users', label: 'Alumnos', url: 'alumnos.html' },
             { page: 'boletines', icon: 'file-text', label: 'Boletines', url: 'boletines.html' },
             { page: 'conducta', icon: 'shield', label: 'Conducta', url: 'conducta.html' },
+            { page: 'permisos-salida', icon: 'door-open', label: 'Permisos de Salida', url: 'permisos-salida.html' },
             { page: 'legajos', icon: 'folder-open', label: 'Legajos', url: 'legajos.html' },
             { page: 'alertas', icon: 'triangle-alert', label: 'Alertas', url: 'alertas.html' },
             {
@@ -93,6 +93,7 @@ const SIDEBAR_CONFIG = {
             { page: 'inscripciones', icon: 'user-plus', label: 'Inscripciones', url: 'inscripciones.html' },
             { page: 'legajos', icon: 'folder-open', label: 'Legajos', url: 'legajos.html' },
             { page: 'boletines', icon: 'file-text', label: 'Boletines', url: 'boletines.html' },
+            { page: 'permisos-salida', icon: 'door-open', label: 'Permisos de Salida', url: 'permisos-salida.html' },
             {
                 page: 'comunicados',
                 icon: 'megaphone',

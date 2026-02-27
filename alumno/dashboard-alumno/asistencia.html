@@ -12,6 +12,116 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="../../assets/css/common.css">
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <style>
+        .pie-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
+        }
+
+        .pie-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .progress-bar {
+            height: 8px;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 9999px;
+            transition: width 1s ease-out;
+        }
+
+        .badge-falta {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .dark .badge-falta {
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+        }
+
+        .badge-media {
+            background: #FEF3C7;
+            color: #D97706;
+        }
+
+        .dark .badge-media {
+            background: rgba(245, 158, 11, 0.15);
+            color: #FCD34D;
+        }
+
+        .badge-salida {
+            background: #DBEAFE;
+            color: #2563EB;
+        }
+
+        .dark .badge-salida {
+            background: rgba(59, 130, 246, 0.15);
+            color: #93C5FD;
+        }
+
+        .badge-justificada {
+            background: #D1FAE5;
+            color: #059669;
+        }
+
+        .dark .badge-justificada {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6EE7B7;
+        }
+
+        .badge-injustificada {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        .dark .badge-injustificada {
+            background: rgba(239, 68, 68, 0.15);
+            color: #FCA5A5;
+        }
+
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        @keyframes drawPie {
+            from {
+                stroke-dashoffset: var(--circumference);
+            }
+        }
+
+        .pie-segment {
+            animation: drawPie 1s ease-out forwards;
+        }
+
+        .section-tab {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .section-tab.active-section {
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            color: white !important;
+            box-shadow: 0 4px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
+        .dark .section-tab.active-section {
+            background: linear-gradient(135deg, #2563eb, #4f46e5);
+        }
+    </style>
 </head>
 
 <body data-theme="alumno"
@@ -32,26 +142,392 @@
                 </div>
             </div>
         </header>
+
         <div class="flex-1 overflow-y-auto p-8">
-            <section class="max-w-5xl mx-auto">
-                <div class="bg-white dark:bg-slate-800 rounded-[2rem] p-8 shadow-sm">
-                    <h3 class="text-xl font-bold text-slate-800 dark:text-slate-100 mb-6">Registro de Asistencia</h3>
-                    <div class="text-center py-12">
-                        <i data-lucide="calendar-check" class="w-16 h-16 mx-auto mb-4 opacity-50 text-slate-400"></i>
-                        <p class="text-slate-500 dark:text-slate-400 mb-2">Funcionalidad de asistencia disponible
-                            próximamente</p>
-                        <p class="text-xs text-slate-400">Podrás ver tu historial de presentes, ausentes y llegadas
-                            tarde</p>
+            <section class="max-w-6xl mx-auto space-y-6">
+
+                <!-- Resumen con Pie Chart -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Pie Chart -->
+                    <div
+                        class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm flex flex-col items-center justify-center">
+                        <h3
+                            class="text-sm font-extrabold text-slate-700 dark:text-slate-200 mb-4 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-4 h-4 text-blue-500"></i> Faltas
+                        </h3>
+                        <div class="pie-container">
+                            <svg viewBox="0 0 120 120" class="w-full h-full" style="transform: rotate(-90deg);">
+                                <!-- Background circle -->
+                                <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="20"
+                                    class="dark:stroke-slate-700" />
+                                <!-- Restantes (gris) - base layer -->
+                                <circle id="pie-restantes" cx="60" cy="60" r="50" fill="none" stroke="#cbd5e1"
+                                    stroke-width="20" class="dark:stroke-slate-600 pie-segment" />
+                                <!-- Justificadas (ámbar) -->
+                                <circle id="pie-justificadas" cx="60" cy="60" r="50" fill="none" stroke="#F59E0B"
+                                    stroke-width="20" class="pie-segment" />
+                                <!-- Injustificadas (rojo) -->
+                                <circle id="pie-injustificadas" cx="60" cy="60" r="50" fill="none" stroke="#EF4444"
+                                    stroke-width="20" class="pie-segment" />
+                            </svg>
+                            <div class="pie-center">
+                                <p class="text-3xl font-black text-slate-800 dark:text-slate-100" id="faltas-usadas">5
+                                </p>
+                                <p class="text-xs text-slate-400 font-bold">de 15</p>
+                            </div>
+                        </div>
+                        <!-- Leyenda -->
+                        <div class="flex flex-wrap justify-center gap-3 mt-4">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Injustificadas (<span
+                                        id="count-injust">3</span>)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-amber-500"></div>
+                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Justificadas (<span
+                                        id="count-just">2</span>)</span>
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-600"></div>
+                                <span class="text-xs font-bold text-slate-500 dark:text-slate-400">Restantes (<span
+                                        id="count-rest">10</span>)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stats cards -->
+                    <div class="lg:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="stat-card bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm text-center">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 dark:text-green-400"></i>
+                            </div>
+                            <p class="text-2xl font-black text-green-600 dark:text-green-400">42</p>
+                            <p class="text-xs font-bold text-slate-400 mt-1">Presentes</p>
+                        </div>
+                        <div class="stat-card bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm text-center">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-900/30 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="x-circle" class="w-5 h-5 text-red-600 dark:text-red-400"></i>
+                            </div>
+                            <p class="text-2xl font-black text-red-600 dark:text-red-400">3</p>
+                            <p class="text-xs font-bold text-slate-400 mt-1">Faltas Injust.</p>
+                        </div>
+                        <div class="stat-card bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm text-center">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="shield-check" class="w-5 h-5 text-amber-600 dark:text-amber-400"></i>
+                            </div>
+                            <p class="text-2xl font-black text-amber-600 dark:text-amber-400">2</p>
+                            <p class="text-xs font-bold text-slate-400 mt-1">Faltas Just.</p>
+                        </div>
+                        <div class="stat-card bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-sm text-center">
+                            <div
+                                class="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center mx-auto mb-3">
+                                <i data-lucide="log-out" class="w-5 h-5 text-blue-600 dark:text-blue-400"></i>
+                            </div>
+                            <p class="text-2xl font-black text-blue-600 dark:text-blue-400">2</p>
+                            <p class="text-xs font-bold text-slate-400 mt-1">Salidas Ant.</p>
+                        </div>
+
+                        <!-- Porcentaje asistencia -->
+                        <div
+                            class="col-span-2 md:col-span-4 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-2xl p-5 text-white flex items-center justify-between shadow-lg shadow-blue-200 dark:shadow-blue-900/20">
+                            <div class="flex items-center gap-3">
+                                <i data-lucide="trending-up" class="w-6 h-6 opacity-80"></i>
+                                <div>
+                                    <p class="text-sm font-bold opacity-80">Porcentaje de Asistencia</p>
+                                    <p class="text-xs opacity-60">Ciclo Lectivo 2026</p>
+                                </div>
+                            </div>
+                            <p class="text-3xl font-black">89%</p>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Tabs de secciones -->
+                <div class="flex gap-2 flex-wrap">
+                    <button onclick="showSection('historial')" id="tab-historial"
+                        class="section-tab active-section px-5 py-2.5 rounded-xl font-bold text-sm">
+                        <span class="flex items-center gap-2"><i data-lucide="list" class="w-4 h-4"></i>
+                            Historial</span>
+                    </button>
+                    <button onclick="showSection('materias')" id="tab-materias"
+                        class="section-tab px-5 py-2.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400">
+                        <span class="flex items-center gap-2"><i data-lucide="book-open" class="w-4 h-4"></i> Por
+                            Materia</span>
+                    </button>
+                </div>
+
+                <!-- Historial de Inasistencias -->
+                <div id="section-historial" class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm">
+                    <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2">
+                        <i data-lucide="calendar-x" class="w-5 h-5 text-red-500"></i> Historial de Inasistencias y
+                        Salidas
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead>
+                                <tr class="border-b-2 border-slate-100 dark:border-slate-700">
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Fecha</th>
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Tipo</th>
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Estado</th>
+                                    <th class="text-left py-3 px-4 font-extrabold text-slate-700 dark:text-slate-200">
+                                        Observación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody-historial"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Asistencia por Materia -->
+                <div id="section-materias" class="hidden">
+                    <div class="bg-white dark:bg-slate-800 rounded-[2rem] p-6 shadow-sm">
+                        <h3
+                            class="text-lg font-extrabold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
+                            <i data-lucide="book-open" class="w-5 h-5 text-blue-500"></i> Asistencia por Materia
+                        </h3>
+                        <div class="space-y-3" id="accordion-materias"></div>
+                    </div>
+                </div>
+
             </section>
         </div>
     </main>
+
     <script src="../../assets/js/theme.js"></script>
     <script src="../../assets/js/sidebar.js"></script>
     <script src="../../assets/js/dashboard.js"></script>
-    <script>initSidebar('alumno', 'asistencia'); updatePageTitle('Mi Asistencia');</script>
+    <script>
+        initSidebar('alumno', 'asistencia');
+        updatePageTitle('Mi Asistencia');
+
+        // ---- PIE CHART ----
+        const MAX_FALTAS = 15;
+        const injustificadas = 3;
+        const justificadas = 2;
+        const restantes = MAX_FALTAS - injustificadas - justificadas;
+
+        const circumference = 2 * Math.PI * 50; // r=50
+
+        function drawPieChart() {
+            const total = MAX_FALTAS;
+            const injPct = injustificadas / total;
+            const justPct = justificadas / total;
+            const restPct = restantes / total;
+
+            const pieInj = document.getElementById('pie-injustificadas');
+            const pieJust = document.getElementById('pie-justificadas');
+            const pieRest = document.getElementById('pie-restantes');
+
+            // Restantes (drawn first, full circle background)
+            pieRest.setAttribute('stroke-dasharray', `${circumference * restPct} ${circumference}`);
+            pieRest.setAttribute('stroke-dashoffset', '0');
+
+            // Justificadas (offset after restantes)
+            pieJust.setAttribute('stroke-dasharray', `${circumference * justPct} ${circumference}`);
+            pieJust.setAttribute('stroke-dashoffset', `-${circumference * restPct}`);
+
+            // Injustificadas (offset after restantes + justificadas)
+            pieInj.setAttribute('stroke-dasharray', `${circumference * injPct} ${circumference}`);
+            pieInj.setAttribute('stroke-dashoffset', `-${circumference * (restPct + justPct)}`);
+
+            document.getElementById('faltas-usadas').textContent = injustificadas + justificadas;
+            document.getElementById('count-injust').textContent = injustificadas;
+            document.getElementById('count-just').textContent = justificadas;
+            document.getElementById('count-rest').textContent = restantes;
+        }
+
+        drawPieChart();
+
+        // ---- HISTORIAL ----
+        const historial = [
+            { fecha: '24/02/2026', tipo: 'Falta', estado: 'Injustificada', obs: 'Sin aviso' },
+            { fecha: '18/02/2026', tipo: 'Salida Anticipada', estado: 'Justificada', obs: 'Turno médico - 14:30 hs' },
+            { fecha: '12/02/2026', tipo: 'Falta', estado: 'Justificada', obs: 'Certificado médico presentado' },
+            { fecha: '05/02/2026', tipo: 'Falta', estado: 'Injustificada', obs: 'Sin aviso' },
+            { fecha: '28/01/2026', tipo: 'Media Falta', estado: 'Justificada', obs: 'Llegada tarde justificada - transporte' },
+            { fecha: '20/01/2026', tipo: 'Salida Anticipada', estado: 'Justificada', obs: 'Retiro familiar - 15:00 hs' },
+            { fecha: '15/01/2026', tipo: 'Falta', estado: 'Injustificada', obs: 'Sin comunicación' },
+        ];
+
+        const tbody = document.getElementById('tbody-historial');
+        historial.forEach((h, i) => {
+            const rowClass = i % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : '';
+            let tipoBadge = '';
+            if (h.tipo === 'Falta') tipoBadge = 'badge-falta';
+            else if (h.tipo === 'Media Falta') tipoBadge = 'badge-media';
+            else tipoBadge = 'badge-salida';
+
+            let estadoBadge = h.estado === 'Justificada' ? 'badge-justificada' : 'badge-injustificada';
+
+            tbody.innerHTML += `
+                <tr class="${rowClass} hover:bg-blue-50/30 dark:hover:bg-slate-700/40 transition-colors">
+                    <td class="py-3 px-4 font-semibold text-slate-700 dark:text-slate-200">${h.fecha}</td>
+                    <td class="py-3 px-4"><span class="${tipoBadge} px-3 py-1 rounded-lg text-xs font-extrabold">${h.tipo}</span></td>
+                    <td class="py-3 px-4"><span class="${estadoBadge} px-3 py-1 rounded-lg text-xs font-extrabold">${h.estado}</span></td>
+                    <td class="py-3 px-4 text-slate-500 dark:text-slate-400 text-sm">${h.obs}</td>
+                </tr>`;
+        });
+
+        // ---- ASISTENCIA POR MATERIA ----
+        const materias = [
+            {
+                nombre: 'Matemática', horario: 'Lun/Mié 08:00 - 09:20',
+                clases: [
+                    { fecha: '26/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '24/02/2026', hora: '08:00 - 09:20', estado: 'Ausente' },
+                    { fecha: '19/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '17/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '12/02/2026', hora: '08:00 - 09:20', estado: 'Ausente' },
+                    { fecha: '10/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                ]
+            },
+            {
+                nombre: 'Lengua y Literatura', horario: 'Mar/Jue 09:30 - 10:50',
+                clases: [
+                    { fecha: '27/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                    { fecha: '25/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                    { fecha: '20/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                    { fecha: '18/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                    { fecha: '13/02/2026', hora: '09:30 - 10:50', estado: 'Ausente' },
+                ]
+            },
+            {
+                nombre: 'Historia', horario: 'Mié 11:00 - 12:20',
+                clases: [
+                    { fecha: '26/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                    { fecha: '19/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                    { fecha: '12/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                    { fecha: '05/02/2026', hora: '11:00 - 12:20', estado: 'Ausente' },
+                ]
+            },
+            {
+                nombre: 'Educación Física', horario: 'Vie 08:00 - 09:20',
+                clases: [
+                    { fecha: '27/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '20/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '13/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                    { fecha: '06/02/2026', hora: '08:00 - 09:20', estado: 'Presente' },
+                ]
+            },
+            {
+                nombre: 'Inglés', horario: 'Lun 11:00 - 12:20',
+                clases: [
+                    { fecha: '24/02/2026', hora: '11:00 - 12:20', estado: 'Ausente' },
+                    { fecha: '17/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                    { fecha: '10/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                    { fecha: '03/02/2026', hora: '11:00 - 12:20', estado: 'Presente' },
+                ]
+            },
+            {
+                nombre: 'Sistemas Digitales', horario: 'Mar 14:00 - 15:20',
+                clases: [
+                    { fecha: '25/02/2026', hora: '14:00 - 15:20', estado: 'Presente' },
+                    { fecha: '18/02/2026', hora: '14:00 - 15:20', estado: 'Presente' },
+                    { fecha: '11/02/2026', hora: '14:00 - 15:20', estado: 'Ausente' },
+                    { fecha: '04/02/2026', hora: '14:00 - 15:20', estado: 'Presente' },
+                ]
+            },
+            {
+                nombre: 'Lab. Electrónica', horario: 'Jue 14:00 - 16:00',
+                clases: [
+                    { fecha: '27/02/2026', hora: '14:00 - 16:00', estado: 'Presente' },
+                    { fecha: '20/02/2026', hora: '14:00 - 16:00', estado: 'Presente' },
+                    { fecha: '13/02/2026', hora: '14:00 - 16:00', estado: 'Presente' },
+                    { fecha: '06/02/2026', hora: '14:00 - 16:00', estado: 'Ausente' },
+                ]
+            },
+            {
+                nombre: 'Física', horario: 'Vie 09:30 - 10:50',
+                clases: [
+                    { fecha: '27/02/2026', hora: '09:30 - 10:50', estado: 'Ausente' },
+                    { fecha: '20/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                    { fecha: '13/02/2026', hora: '09:30 - 10:50', estado: 'Ausente' },
+                    { fecha: '06/02/2026', hora: '09:30 - 10:50', estado: 'Presente' },
+                ]
+            },
+        ];
+
+        const accordion = document.getElementById('accordion-materias');
+        materias.forEach((m, idx) => {
+            const presentes = m.clases.filter(c => c.estado === 'Presente').length;
+            const ausentes = m.clases.filter(c => c.estado === 'Ausente').length;
+
+            let clasesRows = m.clases.map((c, i) => {
+                const rc = i % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : '';
+                const estadoBadge = c.estado === 'Presente'
+                    ? '<span class="bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 px-3 py-1 rounded-lg text-xs font-extrabold">Presente</span>'
+                    : '<span class="bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 px-3 py-1 rounded-lg text-xs font-extrabold">Ausente</span>';
+                return `<tr class="${rc}"><td class="py-2.5 px-4 text-slate-700 dark:text-slate-200 font-semibold text-sm">${c.fecha}</td><td class="py-2.5 px-4 text-slate-500 dark:text-slate-400 text-sm">${c.hora}</td><td class="py-2.5 px-4">${estadoBadge}</td></tr>`;
+            }).join('');
+
+            accordion.innerHTML += `
+            <div class="border border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
+                <button onclick="toggleMateria(${idx})" id="mat-btn-${idx}"
+                    class="w-full flex items-center justify-between px-5 py-4 hover:bg-blue-50/50 dark:hover:bg-slate-700/30 transition-colors text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+                            <i data-lucide="book-open" class="w-4 h-4 text-blue-600 dark:text-blue-400"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-slate-800 dark:text-slate-100 text-sm">${m.nombre}</h4>
+                            <p class="text-xs text-slate-400">${m.horario}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-bold text-green-600 dark:text-green-400">${presentes}P</span>
+                        <span class="text-xs font-bold text-red-500 dark:text-red-400">${ausentes}A</span>
+                        <i data-lucide="chevron-down" id="mat-chev-${idx}" class="w-4 h-4 text-slate-400 transition-transform duration-300"></i>
+                    </div>
+                </button>
+                <div id="mat-body-${idx}" class="hidden border-t border-slate-100 dark:border-slate-700">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 dark:bg-slate-700/40">
+                                <th class="text-left py-2 px-4 font-bold text-slate-500 dark:text-slate-400 text-xs">Fecha</th>
+                                <th class="text-left py-2 px-4 font-bold text-slate-500 dark:text-slate-400 text-xs">Horario</th>
+                                <th class="text-left py-2 px-4 font-bold text-slate-500 dark:text-slate-400 text-xs">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>${clasesRows}</tbody>
+                    </table>
+                </div>
+            </div>`;
+        });
+
+        function toggleMateria(idx) {
+            const body = document.getElementById('mat-body-' + idx);
+            const chev = document.getElementById('mat-chev-' + idx);
+            if (body.classList.contains('hidden')) {
+                body.classList.remove('hidden');
+                chev.style.transform = 'rotate(180deg)';
+            } else {
+                body.classList.add('hidden');
+                chev.style.transform = '';
+            }
+        }
+
+        // ---- SECTION TABS ----
+        function showSection(section) {
+            document.getElementById('section-historial').classList.toggle('hidden', section !== 'historial');
+            document.getElementById('section-materias').classList.toggle('hidden', section !== 'materias');
+
+            document.getElementById('tab-historial').className = section === 'historial'
+                ? 'section-tab active-section px-5 py-2.5 rounded-xl font-bold text-sm'
+                : 'section-tab px-5 py-2.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400';
+            document.getElementById('tab-materias').className = section === 'materias'
+                ? 'section-tab active-section px-5 py-2.5 rounded-xl font-bold text-sm'
+                : 'section-tab px-5 py-2.5 rounded-xl font-bold text-sm bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-400';
+
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+    </script>
 </body>
 
 </html>
-
