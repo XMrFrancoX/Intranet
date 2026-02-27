@@ -104,6 +104,42 @@ const SIDEBAR_CONFIG = {
             },
             { page: 'reportes', icon: 'bar-chart-2', label: 'Reportes', url: 'reportes.html' },
         ]
+    },
+    admin: {
+        theme: 'admin',
+        borderColor: 'border-amber-50',
+        footerBorder: 'border-amber-50',
+        hoverBg: 'hover:bg-amber-50',
+        hoverText: 'hover:text-amber-600',
+        logoutFullPath: '../../admin/login-admin.html',
+        dashboardPath: 'admin/dashboard-admin',
+        items: [
+            { page: 'panel', icon: 'house', label: 'Panel', url: 'panel.html' },
+            { page: 'usuarios', icon: 'users', label: 'Usuarios', url: 'usuarios.html' },
+            { page: 'cursos', icon: 'school', label: 'Cursos', url: 'cursos.html' },
+            { page: 'gestion-academica', icon: 'graduation-cap', label: 'Gestión Académica', url: 'gestion-academica.html' },
+            { page: 'inscripciones', icon: 'user-plus', label: 'Inscripciones', url: 'inscripciones.html' },
+            { page: 'asistencia', icon: 'clipboard-check', label: 'Asistencia', url: 'asistencia.html' },
+            { page: 'calificaciones', icon: 'bar-chart-3', label: 'Calificaciones', url: 'calificaciones.html' },
+            { page: 'boletines', icon: 'file-text', label: 'Boletines', url: 'boletines.html' },
+            { page: 'conducta', icon: 'shield', label: 'Conducta', url: 'conducta.html' },
+            { page: 'legajos', icon: 'folder-open', label: 'Legajos', url: 'legajos.html' },
+            { page: 'alumnos', icon: 'graduation-cap', label: 'Alumnos', url: 'alumnos.html' },
+            { page: 'alertas', icon: 'triangle-alert', label: 'Alertas', url: 'alertas.html' },
+            {
+                page: 'comunicados',
+                icon: 'megaphone',
+                label: 'Comunicados',
+                submenu: [
+                    { page: 'comunicados', icon: 'inbox', label: 'Bandeja', url: '../../comunicados/comunicados.html?rol=admin' },
+                    { page: 'comunicados-grupos', icon: 'users', label: 'Gestionar Grupos', url: '../../comunicados/grupos.html' },
+                ]
+            },
+            { page: 'reportes', icon: 'bar-chart-2', label: 'Reportes', url: 'reportes.html' },
+            { page: 'mensajes', icon: 'message-circle', label: 'Mensajes', url: 'mensajes.html' },
+            { page: 'horarios', icon: 'calendar-clock', label: 'Horarios', url: 'horarios.html' },
+            { page: 'configuracion', icon: 'settings', label: 'Configuración', url: 'configuracion.html' },
+        ]
     }
 };
 
@@ -235,6 +271,7 @@ function initSidebar(rol, activePage, basePath) {
             tutor: { bg: '#eef2ff', color: '#4f46e5', darkBg: 'rgba(99,102,241,0.15)', darkColor: '#a5b4fc' },
             preceptor: { bg: '#ecfdf5', color: '#059669', darkBg: 'rgba(16,185,129,0.15)', darkColor: '#6ee7b7' },
             secretario: { bg: '#ecfeff', color: '#0891b2', darkBg: 'rgba(6,182,212,0.15)', darkColor: '#67e8f9' },
+            admin: { bg: '#fffbeb', color: '#d97706', darkBg: 'rgba(217,119,6,0.15)', darkColor: '#fbbf24' },
         };
         const tc = themeColors[rol] || themeColors.alumno;
         style.textContent = `
