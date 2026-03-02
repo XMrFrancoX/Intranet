@@ -10,6 +10,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="../../assets/css/common.css">
     <link rel="stylesheet" href="../../assets/css/dashboard.css">
     <style>
@@ -53,7 +54,8 @@
             background: #4338ca;
         }
 
-        .hijo-select {
+        .hijo-select,
+        .year-select {
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%234F46E5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
@@ -96,17 +98,21 @@
                             <div>
                                 <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">Calificaciones del
                                     Alumno</h3>
-                                <p class="text-sm text-slate-500 dark:text-slate-400">Seleccioná el hijo/a para ver sus
-                                    calificaciones</p>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Seleccioná el hijo/a y el año para
+                                    ver
+                                    las calificaciones</p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3 flex-wrap">
                             <select id="hijo-select" onchange="cambiarHijo()"
                                 class="hijo-select px-5 py-3 pr-10 rounded-xl border-2 border-indigo-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm focus:border-indigo-400 focus:outline-none transition-all cursor-pointer">
                                 <option value="0">García, Juan — 6to A Electrónica</option>
                                 <option value="1">García, Lucía — 3ro B Informática</option>
                             </select>
-                            <button onclick="alert('Descargando PDF...')"
+                            <select id="year-select" onchange="cambiarAnio()"
+                                class="year-select px-5 py-3 pr-10 rounded-xl border-2 border-indigo-100 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-bold text-sm focus:border-indigo-400 focus:outline-none transition-all cursor-pointer">
+                            </select>
+                            <button onclick="descargarPDF()" id="btn-pdf"
                                 class="flex items-center gap-2 px-5 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-bold hover:shadow-lg hover:shadow-indigo-200 dark:hover:shadow-indigo-900/30 hover:-translate-y-0.5 transition-all text-sm whitespace-nowrap">
                                 <i data-lucide="download" class="w-4 h-4"></i> PDF
                             </button>
@@ -142,7 +148,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">1er Cuatrimestre</h3>
-                            <p class="text-xs text-slate-400">Marzo — Julio 2026</p>
+                            <p class="text-xs text-slate-400" id="periodo-c1">Marzo — Julio 2026</p>
                         </div>
                     </div>
                     <div class="table-container">
@@ -185,7 +191,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-extrabold text-slate-800 dark:text-slate-100">2do Cuatrimestre</h3>
-                            <p class="text-xs text-slate-400">Agosto — Diciembre 2026</p>
+                            <p class="text-xs text-slate-400" id="periodo-c2">Agosto — Diciembre 2026</p>
                         </div>
                     </div>
                     <div class="table-container">
@@ -231,7 +237,7 @@
                             <i data-lucide="award" class="w-12 h-12 opacity-80"></i>
                             <div>
                                 <h3 class="text-2xl font-black">Promedio General Anual</h3>
-                                <p class="text-indigo-100 text-sm font-semibold">Ciclo Lectivo 2026</p>
+                                <p class="text-indigo-100 text-sm font-semibold" id="ciclo-label">Ciclo Lectivo 2026</p>
                             </div>
                         </div>
                         <div class="text-5xl font-black" id="prom-general">—</div>
@@ -248,39 +254,94 @@
         initSidebar('tutor', 'calificaciones');
         updatePageTitle('Calificaciones');
 
+        // Datos por hijo con historial de años
         const hijos = [
             {
                 nombre: 'García, Juan Pablo',
-                curso: '6to Año A — Especialidad Electrónica',
-                materias: [
-                    { nombre: 'Matemática', b1: 8, b2: 7, b3: 9, b4: 8 },
-                    { nombre: 'Lengua y Literatura', b1: 9, b2: 8, b3: 8, b4: 9 },
-                    { nombre: 'Historia', b1: 7, b2: 8, b3: 7, b4: 8 },
-                    { nombre: 'Geografía', b1: 8, b2: 9, b3: 8, b4: 7 },
-                    { nombre: 'Educación Física', b1: 10, b2: 10, b3: 10, b4: 10 },
-                    { nombre: 'Inglés', b1: 9, b2: 9, b3: 8, b4: 9 },
-                    { nombre: 'Sistemas Digitales', b1: 8, b2: 7, b3: 9, b4: 8 },
-                    { nombre: 'Laboratorio Electrónica', b1: 9, b2: 8, b3: 9, b4: 9 },
-                    { nombre: 'Proyecto Tecnológico', b1: 10, b2: 9, b3: null, b4: null },
-                    { nombre: 'Física', b1: 7, b2: 6, b3: null, b4: null },
-                    { nombre: 'Formación Ética', b1: 9, b2: 9, b3: null, b4: null },
+                calificaciones: [
+                    {
+                        anio: 2026,
+                        curso: '6to Año A — Electrónica',
+                        materias: [
+                            { nombre: 'Matemática', b1: 8, b2: 7, b3: 9, b4: 8 },
+                            { nombre: 'Lengua y Literatura', b1: 9, b2: 8, b3: 8, b4: 9 },
+                            { nombre: 'Historia', b1: 7, b2: 8, b3: 7, b4: 8 },
+                            { nombre: 'Geografía', b1: 8, b2: 9, b3: 8, b4: 7 },
+                            { nombre: 'Educación Física', b1: 10, b2: 10, b3: 10, b4: 10 },
+                            { nombre: 'Inglés', b1: 9, b2: 9, b3: 8, b4: 9 },
+                            { nombre: 'Sistemas Digitales', b1: 8, b2: 7, b3: 9, b4: 8 },
+                            { nombre: 'Laboratorio Electrónica', b1: 9, b2: 8, b3: 9, b4: 9 },
+                            { nombre: 'Proyecto Tecnológico', b1: 10, b2: 9, b3: null, b4: null },
+                            { nombre: 'Física', b1: 7, b2: 6, b3: null, b4: null },
+                            { nombre: 'Formación Ética', b1: 9, b2: 9, b3: null, b4: null },
+                        ]
+                    },
+                    {
+                        anio: 2025,
+                        curso: '5to Año A — Electrónica',
+                        materias: [
+                            { nombre: 'Matemática', b1: 7, b2: 8, b3: 8, b4: 7 },
+                            { nombre: 'Lengua y Literatura', b1: 8, b2: 7, b3: 9, b4: 8 },
+                            { nombre: 'Historia', b1: 6, b2: 7, b3: 7, b4: 7 },
+                            { nombre: 'Geografía', b1: 7, b2: 8, b3: 7, b4: 8 },
+                            { nombre: 'Educación Física', b1: 10, b2: 10, b3: 10, b4: 10 },
+                            { nombre: 'Inglés', b1: 8, b2: 8, b3: 7, b4: 8 },
+                            { nombre: 'Sistemas Digitales', b1: 7, b2: 6, b3: 8, b4: 7 },
+                            { nombre: 'Laboratorio Electrónica', b1: 8, b2: 7, b3: 8, b4: 8 },
+                            { nombre: 'Física', b1: 6, b2: 7, b3: 7, b4: 6 },
+                            { nombre: 'Formación Ética', b1: 8, b2: 8, b3: 9, b4: 9 },
+                        ]
+                    }
                 ]
             },
             {
                 nombre: 'García, Lucía',
-                curso: '3ro Año B — Informática',
-                materias: [
-                    { nombre: 'Matemática', b1: 9, b2: 9, b3: null, b4: null },
-                    { nombre: 'Lengua y Literatura', b1: 10, b2: 9, b3: null, b4: null },
-                    { nombre: 'Historia', b1: 8, b2: 8, b3: null, b4: null },
-                    { nombre: 'Geografía', b1: 9, b2: 10, b3: null, b4: null },
-                    { nombre: 'Educación Física', b1: 10, b2: 10, b3: null, b4: null },
-                    { nombre: 'Inglés', b1: 8, b2: 9, b3: null, b4: null },
-                    { nombre: 'Informática', b1: 10, b2: 10, b3: null, b4: null },
-                    { nombre: 'Biología', b1: 7, b2: 8, b3: null, b4: null },
+                calificaciones: [
+                    {
+                        anio: 2026,
+                        curso: '3ro Año B — Informática',
+                        materias: [
+                            { nombre: 'Matemática', b1: 9, b2: 9, b3: null, b4: null },
+                            { nombre: 'Lengua y Literatura', b1: 10, b2: 9, b3: null, b4: null },
+                            { nombre: 'Historia', b1: 8, b2: 8, b3: null, b4: null },
+                            { nombre: 'Geografía', b1: 9, b2: 10, b3: null, b4: null },
+                            { nombre: 'Educación Física', b1: 10, b2: 10, b3: null, b4: null },
+                            { nombre: 'Inglés', b1: 8, b2: 9, b3: null, b4: null },
+                            { nombre: 'Informática', b1: 10, b2: 10, b3: null, b4: null },
+                            { nombre: 'Biología', b1: 7, b2: 8, b3: null, b4: null },
+                        ]
+                    },
+                    {
+                        anio: 2025,
+                        curso: '2do Año B — Informática',
+                        materias: [
+                            { nombre: 'Matemática', b1: 8, b2: 9, b3: 9, b4: 9 },
+                            { nombre: 'Lengua y Literatura', b1: 9, b2: 8, b3: 10, b4: 9 },
+                            { nombre: 'Historia', b1: 7, b2: 7, b3: 8, b4: 8 },
+                            { nombre: 'Geografía', b1: 8, b2: 9, b3: 9, b4: 10 },
+                            { nombre: 'Educación Física', b1: 10, b2: 10, b3: 10, b4: 10 },
+                            { nombre: 'Inglés', b1: 7, b2: 8, b3: 8, b4: 9 },
+                            { nombre: 'Informática', b1: 9, b2: 10, b3: 10, b4: 10 },
+                            { nombre: 'Biología', b1: 6, b2: 7, b3: 7, b4: 8 },
+                        ]
+                    }
                 ]
             }
         ];
+
+        const yearSelect = document.getElementById('year-select');
+        const hijoSelect = document.getElementById('hijo-select');
+
+        function poblarAnios() {
+            const hijo = hijos[hijoSelect.value];
+            yearSelect.innerHTML = '';
+            hijo.calificaciones.forEach((c, i) => {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = `${c.anio} — ${c.curso}`;
+                yearSelect.appendChild(opt);
+            });
+        }
 
         function notaCell(nota) {
             if (nota === null) return '<span class="text-slate-300 dark:text-slate-600">—</span>';
@@ -297,9 +358,13 @@
         }
 
         function renderTablas() {
-            const sel = document.getElementById('hijo-select').value;
-            const hijo = hijos[sel];
-            document.getElementById('info-alumno-text').textContent = `${hijo.nombre} — ${hijo.curso} — Ciclo Lectivo 2026`;
+            const hijo = hijos[hijoSelect.value];
+            const data = hijo.calificaciones[yearSelect.value];
+
+            document.getElementById('info-alumno-text').textContent = `${hijo.nombre} — ${data.curso} — Ciclo Lectivo ${data.anio}`;
+            document.getElementById('ciclo-label').textContent = `Ciclo Lectivo ${data.anio}`;
+            document.getElementById('periodo-c1').textContent = `Marzo — Julio ${data.anio}`;
+            document.getElementById('periodo-c2').textContent = `Agosto — Diciembre ${data.anio}`;
 
             const tbody1 = document.getElementById('tbody-c1');
             const tbody2 = document.getElementById('tbody-c2');
@@ -307,7 +372,7 @@
             tbody2.innerHTML = '';
             let sumC1 = 0, countC1 = 0, sumC2 = 0, countC2 = 0;
 
-            hijo.materias.forEach((m, i) => {
+            data.materias.forEach((m, i) => {
                 const notaC1 = promedio(m.b1, m.b2);
                 const notaC2 = promedio(m.b3, m.b4);
                 const rowClass = i % 2 === 0 ? 'bg-slate-50/50 dark:bg-slate-700/20' : '';
@@ -345,7 +410,43 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function cambiarHijo() { renderTablas(); }
+        function cambiarHijo() {
+            poblarAnios();
+            renderTablas();
+        }
+
+        function cambiarAnio() {
+            renderTablas();
+        }
+
+        function descargarPDF() {
+            const hijo = hijos[hijoSelect.value];
+            const data = hijo.calificaciones[yearSelect.value];
+            const contenido = document.querySelector('section.max-w-6xl');
+            const btn = document.getElementById('btn-pdf');
+            btn.disabled = true;
+            btn.innerHTML = '<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i> Generando...';
+
+            // Mostrar ambos cuatrimestres para el PDF
+            const cuatri2 = document.getElementById('cuatri-2');
+            const wasHidden = cuatri2.classList.contains('hidden');
+            cuatri2.classList.remove('hidden');
+
+            const opt = {
+                margin: [10, 10, 10, 10],
+                filename: `Calificaciones ${data.anio}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().set(opt).from(contenido).save().then(() => {
+                if (wasHidden) cuatri2.classList.add('hidden');
+                btn.disabled = false;
+                btn.innerHTML = '<i data-lucide="download" class="w-4 h-4"></i> PDF';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        }
 
         function showCuatri(n) {
             document.getElementById('cuatri-1').classList.toggle('hidden', n !== 1);
@@ -359,6 +460,7 @@
             }
         }
 
+        poblarAnios();
         renderTablas();
     </script>
 </body>
